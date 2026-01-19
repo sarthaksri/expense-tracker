@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
-import { Wallet, TrendingDown, PiggyBank, IndianRupee, Plus } from 'lucide-react';
+import { Wallet, TrendingDown, PiggyBank, IndianRupee, Plus, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { useExpenseStore } from '@/hooks/useExpenseStore';
 import { Navigation } from '@/components/Navigation';
 import { StatCard } from '@/components/StatCard';
@@ -23,6 +25,8 @@ const Index = () => {
   const [addExpenseOpen, setAddExpenseOpen] = useState(false);
   const [addExpenseDate, setAddExpenseDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [addGoalOpen, setAddGoalOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const {
     expenses,
@@ -43,6 +47,11 @@ const Index = () => {
     updateIncome,
     updateRent,
   } = useExpenseStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   if (!isLoaded) {
     return (
@@ -81,14 +90,31 @@ const Index = () => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center gap-3"
+            className="flex items-center justify-between"
           >
-            <div className="p-2.5 rounded-xl bg-primary/20 border border-primary/30">
-              <IndianRupee className="w-6 h-6 text-primary" />
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-primary/20 border border-primary/30">
+                <IndianRupee className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Expense Tracker</h1>
+                <p className="text-sm text-muted-foreground font-medium">{format(new Date(), 'MMMM yyyy')}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Expense Tracker</h1>
-              <p className="text-sm text-muted-foreground font-medium">{format(new Date(), 'MMMM yyyy')}</p>
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-foreground">Welcome, {user?.name}</p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
             </div>
           </motion.div>
         </div>

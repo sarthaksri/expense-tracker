@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { expensesAPI, savingsGoalsAPI, monthlyDataAPI, categoriesAPI } from '@/lib/api';
 import { Expense, SavingsGoal, MonthlyIncome, MonthlyRent, ExpenseCategory } from '@/types/expense';
 import { format, parseISO, isWithinInterval, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -19,114 +19,82 @@ export function useExpenseStore() {
   const [customCategories, setCustomCategories] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Fetch all data from database
+  // Fetch all data from backend API
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch expenses
-        const { data: expensesData } = await supabase
-          .from('expenses')
-          .select('*')
-          .order('date', { ascending: false });
-
-        if (expensesData) {
-          setExpenses(expensesData.map(e => ({
-            id: e.id,
+        const expensesResponse = await expensesAPI.getAll();
+        if (expensesResponse.data.success) {
+          setExpenses(expensesResponse.data.data.map((e: any) => ({
+            id: e._id,
             amount: Number(e.amount),
             category: e.category as ExpenseCategory,
-            customCategory: e.custom_category || undefined,
+            customCategory: e.customCategory || undefined,
             description: e.description || undefined,
             date: e.date,
           })));
         }
 
         // Fetch savings goals
-        const { data: goalsData } = await supabase.from('savings_goals').select('*');
-        
-        if (goalsData && goalsData.length > 0) {
-          setSavingsGoals(goalsData.map(g => ({
-            id: g.id,
-            name: g.name,
-            targetAmount: Number(g.target_amount),
-            currentAmount: Number(g.current_amount),
-            color: g.color,
-            icon: g.icon,
-          })));
-        } else {
-          // Create default savings goals
-          const defaultGoals: SavingsGoal[] = [];
-          for (const goal of DEFAULT_SAVINGS_GOALS) {
-            const { data } = await supabase
-              .from('savings_goals')
-              .insert({
-                name: goal.name,
-                target_amount: goal.targetAmount,
-                current_amount: goal.currentAmount,
-                color: goal.color,
-                icon: goal.icon,
-              })
-              .select()
-              .single();
-            if (data) {
-              defaultGoals.push({
-                id: data.id,
-                name: data.name,
-                targetAmount: Number(data.target_amount),
-                currentAmount: Number(data.current_amount),
-                color: data.color,
-                icon: data.icon,
-              });
+        const goalsResponse = await savingsGoalsAPI.getAll();
+        if (goalsResponse.data.success) {
+          const goalsData = goalsResponse.data.data;
+
+          if (goalsData && goalsData.length > 0) {
+            setSavingsGoals(goalsData.map((g: any) => ({
+              id: g._id,
+              name: g.name,
+              targetAmount: Number(g.targetAmount),
+              currentAmount: Number(g.currentAmount),
+              color: g.color,
+              icon: g.icon,
+            })));
+          } else {
+            // Create default savings goals
+            const defaultGoals: SavingsGoal[] = [];
+            for (const goal of DEFAULT_SAVINGS_GOALS) {
+              const response = await savingsGoalsAPI.create(goal);
+              if (response.data.success) {
+                const data = response.data.data;
+                defaultGoals.push({
+                  id: data._id,
+                  name: data.name,
+                  targetAmount: Number(data.targetAmount),
+                  currentAmount: Number(data.currentAmount),
+                  color: data.color,
+                  icon: data.icon,
+                });
+              }
             }
+            setSavingsGoals(defaultGoals);
           }
-          setSavingsGoals(defaultGoals);
         }
 
         // Fetch monthly income
-        const { data: incomeData } = await supabase
-          .from('monthly_income')
-          .select('*')
-          .eq('month', currentMonth)
-          .maybeSingle();
-
-        if (incomeData) {
+        const incomeResponse = await monthlyDataAPI.getIncome(currentMonth);
+        if (incomeResponse.data.success) {
+          const incomeData = incomeResponse.data.data;
           setIncome({
             salary: Number(incomeData.salary),
-            otherIncome: Number(incomeData.other_income),
-          });
-        } else {
-          // Create default income record
-          await supabase.from('monthly_income').insert({
-            month: currentMonth,
-            salary: 0,
-            other_income: 0,
+            otherIncome: Number(incomeData.otherIncome),
           });
         }
 
         // Fetch monthly rent
-        const { data: rentData } = await supabase
-          .from('monthly_rent')
-          .select('*')
-          .eq('month', currentMonth)
-          .maybeSingle();
-
-        if (rentData) {
+        const rentResponse = await monthlyDataAPI.getRent(currentMonth);
+        if (rentResponse.data.success) {
+          const rentData = rentResponse.data.data;
           setRent({
             amount: Number(rentData.amount),
-            isPaid: rentData.is_paid,
-          });
-        } else {
-          // Create default rent record
-          await supabase.from('monthly_rent').insert({
-            month: currentMonth,
-            amount: 0,
-            is_paid: false,
+            isPaid: rentData.isPaid,
           });
         }
 
         // Fetch custom categories
-        const { data: categoriesData } = await supabase.from('custom_categories').select('*');
-        if (categoriesData) {
-          setCustomCategories(categoriesData.map(c => c.name));
+        const categoriesResponse = await categoriesAPI.getAll();
+        if (categoriesResponse.data.success) {
+          setCustomCategories(categoriesResponse.data.data.map((c: any) => c.name));
         }
 
         setIsLoaded(true);
@@ -140,141 +108,123 @@ export function useExpenseStore() {
   }, []);
 
   const addExpense = useCallback(async (expense: Omit<Expense, 'id'>) => {
-    const { data, error } = await supabase
-      .from('expenses')
-      .insert({
-        amount: expense.amount,
-        category: expense.category,
-        custom_category: expense.customCategory || null,
-        description: expense.description || null,
-        date: expense.date,
-      })
-      .select()
-      .single();
-
-    if (data && !error) {
-      const newExpense: Expense = {
-        id: data.id,
-        amount: Number(data.amount),
-        category: data.category as ExpenseCategory,
-        customCategory: data.custom_category || undefined,
-        description: data.description || undefined,
-        date: data.date,
-      };
-      setExpenses(prev => [newExpense, ...prev]);
+    try {
+      const response = await expensesAPI.create(expense);
+      if (response.data.success) {
+        const data = response.data.data;
+        const newExpense: Expense = {
+          id: data._id,
+          amount: Number(data.amount),
+          category: data.category as ExpenseCategory,
+          customCategory: data.customCategory || undefined,
+          description: data.description || undefined,
+          date: data.date,
+        };
+        setExpenses(prev => [newExpense, ...prev]);
+      }
+    } catch (error) {
+      console.error('Error adding expense:', error);
     }
   }, []);
 
   const updateExpense = useCallback(async (id: string, updates: Partial<Expense>) => {
-    const { error } = await supabase
-      .from('expenses')
-      .update({
-        amount: updates.amount,
-        category: updates.category,
-        custom_category: updates.customCategory || null,
-        description: updates.description || null,
-        date: updates.date,
-      })
-      .eq('id', id);
-
-    if (!error) {
-      setExpenses(prev => prev.map(e => (e.id === id ? { ...e, ...updates } : e)));
+    try {
+      const response = await expensesAPI.update(id, updates);
+      if (response.data.success) {
+        setExpenses(prev => prev.map(e => (e.id === id ? { ...e, ...updates } : e)));
+      }
+    } catch (error) {
+      console.error('Error updating expense:', error);
     }
   }, []);
 
   const deleteExpense = useCallback(async (id: string) => {
-    const { error } = await supabase.from('expenses').delete().eq('id', id);
-    if (!error) {
-      setExpenses(prev => prev.filter(e => e.id !== id));
+    try {
+      const response = await expensesAPI.delete(id);
+      if (response.data.success) {
+        setExpenses(prev => prev.filter(e => e.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting expense:', error);
     }
   }, []);
 
   const addSavingsGoal = useCallback(async (goal: Omit<SavingsGoal, 'id'>) => {
-    const { data, error } = await supabase
-      .from('savings_goals')
-      .insert({
-        name: goal.name,
-        target_amount: goal.targetAmount,
-        current_amount: goal.currentAmount,
-        color: goal.color,
-        icon: goal.icon,
-      })
-      .select()
-      .single();
-
-    if (data && !error) {
-      const newGoal: SavingsGoal = {
-        id: data.id,
-        name: data.name,
-        targetAmount: Number(data.target_amount),
-        currentAmount: Number(data.current_amount),
-        color: data.color,
-        icon: data.icon,
-      };
-      setSavingsGoals(prev => [...prev, newGoal]);
+    try {
+      const response = await savingsGoalsAPI.create(goal);
+      if (response.data.success) {
+        const data = response.data.data;
+        const newGoal: SavingsGoal = {
+          id: data._id,
+          name: data.name,
+          targetAmount: Number(data.targetAmount),
+          currentAmount: Number(data.currentAmount),
+          color: data.color,
+          icon: data.icon,
+        };
+        setSavingsGoals(prev => [...prev, newGoal]);
+      }
+    } catch (error) {
+      console.error('Error adding savings goal:', error);
     }
   }, []);
 
   const updateSavingsGoal = useCallback(async (id: string, updates: Partial<SavingsGoal>) => {
-    const { error } = await supabase
-      .from('savings_goals')
-      .update({
-        name: updates.name,
-        target_amount: updates.targetAmount,
-        current_amount: updates.currentAmount,
-        color: updates.color,
-        icon: updates.icon,
-      })
-      .eq('id', id);
-
-    if (!error) {
-      setSavingsGoals(prev => prev.map(g => (g.id === id ? { ...g, ...updates } : g)));
+    try {
+      const response = await savingsGoalsAPI.update(id, updates);
+      if (response.data.success) {
+        setSavingsGoals(prev => prev.map(g => (g.id === id ? { ...g, ...updates } : g)));
+      }
+    } catch (error) {
+      console.error('Error updating savings goal:', error);
     }
   }, []);
 
   const deleteSavingsGoal = useCallback(async (id: string) => {
-    const { error } = await supabase.from('savings_goals').delete().eq('id', id);
-    if (!error) {
-      setSavingsGoals(prev => prev.filter(g => g.id !== id));
+    try {
+      const response = await savingsGoalsAPI.delete(id);
+      if (response.data.success) {
+        setSavingsGoals(prev => prev.filter(g => g.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting savings goal:', error);
     }
   }, []);
 
   const addCustomCategory = useCallback(async (name: string) => {
     if (!customCategories.includes(name)) {
-      const { error } = await supabase.from('custom_categories').insert({ name });
-      if (!error) {
-        setCustomCategories(prev => [...prev, name]);
+      try {
+        const response = await categoriesAPI.create({ name });
+        if (response.data.success) {
+          setCustomCategories(prev => [...prev, name]);
+        }
+      } catch (error) {
+        console.error('Error adding custom category:', error);
       }
     }
   }, [customCategories]);
 
   const updateIncome = useCallback(async (updates: Partial<MonthlyIncome>) => {
-    const { error } = await supabase
-      .from('monthly_income')
-      .update({
-        salary: updates.salary ?? income.salary,
-        other_income: updates.otherIncome ?? income.otherIncome,
-      })
-      .eq('month', currentMonth);
-
-    if (!error) {
-      setIncome(prev => ({ ...prev, ...updates }));
+    try {
+      const response = await monthlyDataAPI.updateIncome(currentMonth, updates);
+      if (response.data.success) {
+        setIncome(prev => ({ ...prev, ...updates }));
+      }
+    } catch (error) {
+      console.error('Error updating income:', error);
     }
-  }, [income]);
+  }, []);
 
   const updateRent = useCallback(async (updates: Partial<MonthlyRent>) => {
-    const { error } = await supabase
-      .from('monthly_rent')
-      .update({
-        amount: updates.amount ?? rent.amount,
-        is_paid: updates.isPaid ?? rent.isPaid,
-      })
-      .eq('month', currentMonth);
-
-    if (!error) {
-      setRent(prev => ({ ...prev, ...updates }));
+    try {
+      const response = await monthlyDataAPI.updateRent(currentMonth, updates);
+      if (response.data.success) {
+        setRent(prev => ({ ...prev, ...updates }));
+      }
+    } catch (error) {
+      console.error('Error updating rent:', error);
     }
-  }, [rent]);
+  }, []);
 
   const getExpensesForDate = useCallback((date: string) => {
     return expenses.filter(e => e.date === date);
