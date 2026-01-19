@@ -68,27 +68,27 @@ export function IncomeRentEditor({
     const isEditing = editingField === field;
 
     const variantStyles = {
-      default: 'border-border',
-      income: 'border-primary/30 bg-primary/5',
-      expense: 'border-expense/30 bg-expense/5',
+      default: 'border-border bg-card',
+      income: 'border-primary/40 bg-primary/10',
+      expense: 'border-expense/40 bg-expense/10',
     };
 
     return (
       <motion.div
         whileHover={{ scale: isEditing ? 1 : 1.02 }}
         className={cn(
-          'p-4 rounded-xl border transition-all',
+          'p-5 rounded-xl border transition-all shadow-sm',
           variantStyles[variant],
           isEditing && 'ring-2 ring-primary'
         )}
       >
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-3">
           <Icon className={cn(
-            'w-4 h-4',
+            'w-5 h-5',
             variant === 'income' && 'text-primary',
             variant === 'expense' && 'text-expense'
           )} />
-          <span className="text-sm text-muted-foreground">{label}</span>
+          <span className="text-sm font-semibold text-foreground/80">{label}</span>
         </div>
 
         {isEditing ? (
@@ -115,10 +115,10 @@ export function IncomeRentEditor({
             className="flex items-center justify-between cursor-pointer group"
             onClick={() => handleEdit(field, value)}
           >
-            <span className="text-2xl font-bold font-mono">
+            <span className="text-2xl font-bold font-mono text-foreground">
               {formatCurrency(value)}
             </span>
-            <Pencil className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Pencil className="w-4 h-4 text-foreground/50 opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         )}
       </motion.div>
@@ -131,7 +131,7 @@ export function IncomeRentEditor({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <h3 className="text-lg font-semibold mb-4">Monthly Overview</h3>
+      <h3 className="text-lg font-bold text-foreground mb-4">Monthly Overview</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <EditableField
