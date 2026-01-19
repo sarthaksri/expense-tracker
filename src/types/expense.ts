@@ -7,33 +7,26 @@ export interface Expense {
   amount: number;
   category: ExpenseCategory;
   customCategory?: string;
-  description: string;
+  description?: string;
   date: string; // ISO date string
-  createdAt: string;
 }
 
 export interface SavingsGoal {
   id: string;
   name: string;
-  type: SavingsGoalType;
   targetAmount: number;
   currentAmount: number;
   color: string;
   icon: string;
-  createdAt: string;
 }
 
 export interface MonthlyIncome {
-  id: string;
   salary: number;
   otherIncome: number;
-  month: string; // YYYY-MM format
 }
 
 export interface MonthlyRent {
-  id: string;
   amount: number;
-  month: string; // YYYY-MM format
   isPaid: boolean;
 }
 

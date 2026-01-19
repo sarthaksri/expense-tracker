@@ -74,21 +74,21 @@ const Index = () => {
   const monthExpenses = getExpensesForMonth(currentMonth);
 
   return (
-    <div className="dark min-h-screen bg-background pb-20 md:pb-0">
+    <div className="dark min-h-screen bg-background text-foreground pb-20 md:pb-0">
       {/* Header */}
-      <header className="sticky top-0 z-40 glass border-b border-border">
+      <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm">
         <div className="container mx-auto px-4 py-4">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3"
           >
-            <div className="p-2 rounded-xl bg-primary/20">
+            <div className="p-2.5 rounded-xl bg-primary/20 border border-primary/30">
               <IndianRupee className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">Expense Tracker</h1>
-              <p className="text-xs text-muted-foreground">{format(new Date(), 'MMMM yyyy')}</p>
+              <h1 className="text-xl font-bold text-foreground">Expense Tracker</h1>
+              <p className="text-sm text-muted-foreground font-medium">{format(new Date(), 'MMMM yyyy')}</p>
             </div>
           </motion.div>
         </div>

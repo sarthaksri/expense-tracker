@@ -76,7 +76,6 @@ export function SavingsGoalCard({ goal, onUpdate, onDelete, delay = 0 }: Savings
             </motion.div>
             <div>
               <h4 className="font-semibold text-foreground">{goal.name}</h4>
-              <p className="text-xs text-muted-foreground capitalize">{goal.type}</p>
             </div>
           </div>
 

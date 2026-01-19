@@ -13,7 +13,6 @@ interface AddSavingsGoalDialogProps {
   onOpenChange: (open: boolean) => void;
   onAddGoal: (goal: {
     name: string;
-    type: SavingsGoalType;
     targetAmount: number;
     currentAmount: number;
     color: string;
@@ -55,7 +54,6 @@ export function AddSavingsGoalDialog({
     
     onAddGoal({
       name,
-      type,
       targetAmount: parseFloat(targetAmount),
       currentAmount: parseFloat(currentAmount) || 0,
       color: selectedType?.color || 'hsl(160 84% 39%)',

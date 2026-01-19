@@ -15,16 +15,16 @@ interface StatCardProps {
 
 const variantStyles = {
   default: 'from-card to-card border-border',
-  income: 'from-primary/20 to-primary/5 border-primary/30',
-  expense: 'from-expense/20 to-expense/5 border-expense/30',
-  savings: 'from-savings/20 to-savings/5 border-savings/30',
+  income: 'from-primary/15 to-primary/5 border-primary/40',
+  expense: 'from-expense/15 to-expense/5 border-expense/40',
+  savings: 'from-savings/15 to-savings/5 border-savings/40',
 };
 
 const iconStyles = {
   default: 'bg-muted text-foreground',
-  income: 'bg-primary/20 text-primary',
-  expense: 'bg-expense/20 text-expense',
-  savings: 'bg-savings/20 text-savings',
+  income: 'bg-primary/25 text-primary',
+  expense: 'bg-expense/25 text-expense',
+  savings: 'bg-savings/25 text-savings',
 };
 
 export function StatCard({ 
@@ -59,14 +59,14 @@ export function StatCard({
 
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-medium text-muted-foreground">{title}</span>
-          <div className={cn('p-2 rounded-lg', iconStyles[variant])}>
+          <span className="text-sm font-semibold text-foreground/80">{title}</span>
+          <div className={cn('p-2.5 rounded-lg', iconStyles[variant])}>
             <Icon className="w-5 h-5" />
           </div>
         </div>
 
         <div className="space-y-1">
-          <h3 className="text-2xl font-bold font-mono">
+          <h3 className="text-2xl font-bold font-mono text-foreground">
             <AnimatedNumber 
               value={value} 
               formatFn={formatCurrency}
