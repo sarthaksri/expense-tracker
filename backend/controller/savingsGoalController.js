@@ -25,12 +25,20 @@ const getSavingsGoals = async (req, res) => {
 // @access  Private
 const createSavingsGoal = async (req, res) => {
   try {
-    const { name, targetAmount, currentAmount, color, icon } = req.body;
+    const { name, targetAmount, currentAmount, color, icon, goalType, period } = req.body;
 
     if (!name || targetAmount === undefined) {
       return res.status(400).json({
         success: false,
         message: 'Please provide name and target amount',
+      });
+    }
+
+    // Validate that monthly goals have a period
+    if (goalType === 'monthly' && !period) {
+      return res.status(400).json({
+        success: false,
+        message: 'Monthly goals must have a period (YYYY-MM format)',
       });
     }
 
@@ -41,6 +49,8 @@ const createSavingsGoal = async (req, res) => {
       currentAmount: currentAmount || 0,
       color: color || '#10b981',
       icon: icon || 'piggy-bank',
+      goalType: goalType || 'overall',
+      period: period || null,
     });
 
     res.status(201).json({

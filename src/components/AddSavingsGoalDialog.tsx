@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Plane, Laptop, TrendingUp, Shield, Sparkles } from 'lucide-react';
+import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,8 @@ interface AddSavingsGoalDialogProps {
     currentAmount: number;
     color: string;
     icon: string;
+    goalType: 'monthly' | 'overall';
+    period?: string;
   }) => void;
 }
 
@@ -45,6 +48,8 @@ export function AddSavingsGoalDialog({
   const [type, setType] = useState<SavingsGoalType | null>(null);
   const [targetAmount, setTargetAmount] = useState('');
   const [currentAmount, setCurrentAmount] = useState('');
+  const [goalType, setGoalType] = useState<'monthly' | 'overall'>('overall');
+  const [period, setPeriod] = useState(format(new Date(), 'yyyy-MM'));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +63,8 @@ export function AddSavingsGoalDialog({
       currentAmount: parseFloat(currentAmount) || 0,
       color: selectedType?.color || 'hsl(160 84% 39%)',
       icon: iconMap[type],
+      goalType,
+      period: goalType === 'monthly' ? period : undefined,
     });
 
     // Reset form
@@ -65,6 +72,8 @@ export function AddSavingsGoalDialog({
     setType(null);
     setTargetAmount('');
     setCurrentAmount('');
+    setGoalType('overall');
+    setPeriod(format(new Date(), 'yyyy-MM'));
     onOpenChange(false);
   };
 
@@ -90,6 +99,62 @@ export function AddSavingsGoalDialog({
               required
             />
           </div>
+
+          {/* Goal Category - Monthly vs Overall */}
+          <div className="space-y-2">
+            <Label>Goal Category</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setGoalType('monthly')}
+                className={cn(
+                  'flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all',
+                  goalType === 'monthly'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-primary/50'
+                )}
+              >
+                <span className="text-sm font-medium">📅 Monthly Savings</span>
+                <span className="text-xs text-muted-foreground">Track monthly targets</span>
+              </motion.button>
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setGoalType('overall')}
+                className={cn(
+                  'flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all',
+                  goalType === 'overall'
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-primary/50'
+                )}
+              >
+                <span className="text-sm font-medium">🎯 Overall Goal</span>
+                <span className="text-xs text-muted-foreground">Long-term targets</span>
+              </motion.button>
+            </div>
+          </div>
+
+          {/* Month selector for monthly goals */}
+          {goalType === 'monthly' && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-2"
+            >
+              <Label htmlFor="period">Target Month</Label>
+              <Input
+                id="period"
+                type="month"
+                value={period}
+                onChange={(e) => setPeriod(e.target.value)}
+                required={goalType === 'monthly'}
+              />
+            </motion.div>
+          )}
 
           {/* Goal type */}
           <div className="space-y-2">

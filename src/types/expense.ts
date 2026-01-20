@@ -18,6 +18,8 @@ export interface SavingsGoal {
   currentAmount: number;
   color: string;
   icon: string;
+  goalType: 'monthly' | 'overall';
+  period?: string; // YYYY-MM format for monthly goals
 }
 
 export interface MonthlyIncome {

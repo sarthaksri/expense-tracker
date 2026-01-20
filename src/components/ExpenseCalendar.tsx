@@ -1,11 +1,23 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, parseISO, isSameDay } from 'date-fns';
+import { ChevronLeft, ChevronRight, Plus, Calendar } from 'lucide-react';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, parseISO, isSameDay, setMonth, setYear } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Expense } from '@/types/expense';
 import { formatCurrency } from '@/lib/formatCurrency';
 import { cn } from '@/lib/utils';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ExpenseCalendarProps {
   expenses: Expense[];
@@ -81,14 +93,66 @@ export function ExpenseCalendar({
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <motion.h3 
-          key={format(currentMonth, 'MMMM yyyy')}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="text-xl font-bold"
-        >
-          {format(currentMonth, 'MMMM yyyy')}
-        </motion.h3>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="gap-2 font-bold text-lg h-auto py-2 px-4 hover:bg-primary/10"
+            >
+              <Calendar className="w-5 h-5" />
+              {format(currentMonth, 'MMMM yyyy')}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-4" align="start">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Month</label>
+                <Select
+                  value={currentMonth.getMonth().toString()}
+                  onValueChange={(value) => {
+                    const newDate = setMonth(currentMonth, parseInt(value));
+                    setCurrentMonth(newDate);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <SelectItem key={i} value={i.toString()}>
+                        {format(new Date(2000, i, 1), 'MMMM')}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Year</label>
+                <Select
+                  value={currentMonth.getFullYear().toString()}
+                  onValueChange={(value) => {
+                    const newDate = setYear(currentMonth, parseInt(value));
+                    setCurrentMonth(newDate);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 10 }, (_, i) => {
+                      const year = new Date().getFullYear() - 5 + i;
+                      return (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
         <div className="flex gap-2">
           <Button
             variant="ghost"

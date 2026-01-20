@@ -76,6 +76,21 @@ export function SavingsGoalCard({ goal, onUpdate, onDelete, delay = 0 }: Savings
             </motion.div>
             <div>
               <h4 className="font-semibold text-foreground">{goal.name}</h4>
+              <div className="flex items-center gap-2 mt-1">
+                <span className={cn(
+                  "text-xs px-2 py-0.5 rounded-full font-medium",
+                  goal.goalType === 'monthly' 
+                    ? "bg-blue-500/20 text-blue-400" 
+                    : "bg-purple-500/20 text-purple-400"
+                )}>
+                  {goal.goalType === 'monthly' ? '📅 Monthly' : '🎯 Overall'}
+                </span>
+                {goal.period && (
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(goal.period + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 

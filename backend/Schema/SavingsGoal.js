@@ -31,6 +31,15 @@ const savingsGoalSchema = new mongoose.Schema({
     type: String,
     default: 'piggy-bank',
   },
+  goalType: {
+    type: String,
+    enum: ['monthly', 'overall'],
+    default: 'overall',
+  },
+  period: {
+    type: String, // Format: 'YYYY-MM' for monthly goals
+    trim: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

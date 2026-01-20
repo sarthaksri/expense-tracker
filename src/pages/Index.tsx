@@ -12,7 +12,8 @@ import { ExpenseCalendar } from '@/components/ExpenseCalendar';
 import { DailyExpenseList } from '@/components/DailyExpenseList';
 import { SavingsGoalCard } from '@/components/SavingsGoalCard';
 import { CategoryBreakdownChart } from '@/components/CategoryBreakdownChart';
-import { MonthlyTrendChart } from '@/components/MonthlyTrendChart';
+import { MonthlyTrendChart, AnalyticsPeriod } from '@/components/MonthlyTrendChart';
+import { PeriodSelector } from '@/components/PeriodSelector';
 import { IncomeRentEditor } from '@/components/IncomeRentEditor';
 import { AddExpenseDialog } from '@/components/AddExpenseDialog';
 import { AddSavingsGoalDialog } from '@/components/AddSavingsGoalDialog';
@@ -27,6 +28,7 @@ const Index = () => {
   const [addExpenseOpen, setAddExpenseOpen] = useState(false);
   const [addExpenseDate, setAddExpenseDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [addGoalOpen, setAddGoalOpen] = useState(false);
+  const [analyticsPeriod, setAnalyticsPeriod] = useState<AnalyticsPeriod>('6-month');
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -169,7 +171,7 @@ const Index = () => {
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="p-6 rounded-xl bg-card border border-border">
                   <h3 className="text-lg font-semibold mb-4">Monthly Trend</h3>
-                  <MonthlyTrendChart expenses={expenses} />
+                  <MonthlyTrendChart expenses={expenses} period="6-month" />
                 </motion.div>
               </div>
             </motion.div>
@@ -190,25 +192,68 @@ const Index = () => {
                   <Plus className="w-4 h-4" /> Add Goal
                 </Button>
               </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {savingsGoals.map((goal, i) => (
-                  <SavingsGoalCard key={goal.id} goal={goal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} delay={i * 0.1} />
-                ))}
-              </div>
+              
+              {/* Monthly Savings Goals */}
+              {savingsGoals.some(g => g.goalType === 'monthly') && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    📅 Monthly Savings
+                  </h3>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {savingsGoals
+                      .filter(g => g.goalType === 'monthly')
+                      .map((goal, i) => (
+                        <SavingsGoalCard key={goal.id} goal={goal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} delay={i * 0.1} />
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Overall Goals */}
+              {savingsGoals.some(g => g.goalType === 'overall') && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold flex items-center gap-2">
+                    🎯 Overall Goals
+                  </h3>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {savingsGoals
+                      .filter(g => g.goalType === 'overall')
+                      .map((goal, i) => (
+                        <SavingsGoalCard key={goal.id} goal={goal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} delay={i * 0.1} />
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty state */}
+              {savingsGoals.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p>No savings goals yet. Create one to get started!</p>
+                </div>
+              )}
             </motion.div>
           )}
 
           {activeTab === 'analytics' && (
             <motion.div key="analytics" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
-              <h2 className="text-2xl font-bold">Analytics</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h2 className="text-2xl font-bold">Analytics</h2>
+                <PeriodSelector selectedPeriod={analyticsPeriod} onPeriodChange={setAnalyticsPeriod} />
+              </div>
+              
               <div className="grid lg:grid-cols-2 gap-6">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-xl bg-card border border-border">
                   <h3 className="text-lg font-semibold mb-4">Category Breakdown</h3>
                   <CategoryBreakdownChart expenses={expenses} />
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-lg font-semibold mb-4">6-Month Trend</h3>
-                  <MonthlyTrendChart expenses={expenses} monthsToShow={6} />
+                  <h3 className="text-lg font-semibold mb-4">
+                    {analyticsPeriod === 'monthly' && 'Last 30 Days'}
+                    {analyticsPeriod === 'quarterly' && 'Quarterly (3 Months)'}
+                    {analyticsPeriod === '6-month' && '6-Month Trend'}
+                    {analyticsPeriod === 'annual' && 'Annual (12 Months)'}
+                  </h3>
+                  <MonthlyTrendChart expenses={expenses} period={analyticsPeriod} />
                 </motion.div>
               </div>
             </motion.div>

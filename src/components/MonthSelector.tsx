@@ -1,8 +1,20 @@
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
-import { format, addMonths, subMonths, startOfMonth, isSameMonth } from 'date-fns';
+import { format, addMonths, subMonths, startOfMonth, isSameMonth, setMonth, setYear } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface MonthSelectorProps {
   selectedMonth: Date;
@@ -40,21 +52,77 @@ export function MonthSelector({ selectedMonth, onMonthChange }: MonthSelectorPro
         <span className="hidden sm:inline">Previous</span>
       </Button>
 
-      <div className="flex items-center gap-3">
-        <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-          <Calendar className="w-5 h-5 text-primary" />
-        </div>
-        <div className="text-center">
-          <h2 className="text-xl font-bold text-foreground">
-            {format(selectedMonth, 'MMMM yyyy')}
-          </h2>
-          {!isCurrentMonth && (
-            <p className="text-xs text-muted-foreground">
-              {format(new Date(), 'MMMM yyyy')} is current
-            </p>
-          )}
-        </div>
-      </div>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button 
+            variant="ghost" 
+            className="flex items-center gap-3 hover:bg-primary/10 h-auto py-2"
+          >
+            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+              <Calendar className="w-5 h-5 text-primary" />
+            </div>
+            <div className="text-center">
+              <h2 className="text-xl font-bold text-foreground">
+                {format(selectedMonth, 'MMMM yyyy')}
+              </h2>
+              {!isCurrentMonth && (
+                <p className="text-xs text-muted-foreground">
+                  {format(new Date(), 'MMMM yyyy')} is current
+                </p>
+              )}
+            </div>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 p-4" align="center">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Month</label>
+              <Select
+                value={selectedMonth.getMonth().toString()}
+                onValueChange={(value) => {
+                  const newDate = setMonth(selectedMonth, parseInt(value));
+                  onMonthChange(startOfMonth(newDate));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <SelectItem key={i} value={i.toString()}>
+                      {format(new Date(2000, i, 1), 'MMMM')}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Year</label>
+              <Select
+                value={selectedMonth.getFullYear().toString()}
+                onValueChange={(value) => {
+                  const newDate = setYear(selectedMonth, parseInt(value));
+                  onMonthChange(startOfMonth(newDate));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 10 }, (_, i) => {
+                    const year = new Date().getFullYear() - 5 + i;
+                    return (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
 
       <div className="flex items-center gap-2">
         {!isCurrentMonth && (
