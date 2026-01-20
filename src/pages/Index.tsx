@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 import { Wallet, TrendingDown, PiggyBank, IndianRupee, Plus, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useExpenseStore } from '@/hooks/useExpenseStore';
 import { Navigation } from '@/components/Navigation';
+import { MonthSelector } from '@/components/MonthSelector';
 import { StatCard } from '@/components/StatCard';
 import { ExpenseCalendar } from '@/components/ExpenseCalendar';
 import { DailyExpenseList } from '@/components/DailyExpenseList';
@@ -21,6 +22,7 @@ type Tab = 'dashboard' | 'calendar' | 'savings' | 'analytics';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  const [selectedMonth, setSelectedMonth] = useState(startOfMonth(new Date()));
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [addExpenseOpen, setAddExpenseOpen] = useState(false);
   const [addExpenseDate, setAddExpenseDate] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -46,7 +48,15 @@ const Index = () => {
     addCustomCategory,
     updateIncome,
     updateRent,
+    fetchMonthlyData,
   } = useExpenseStore();
+
+  // Fetch monthly data when selected month changes
+  useEffect(() => {
+    if (isLoaded) {
+      fetchMonthlyData(format(selectedMonth, 'yyyy-MM'));
+    }
+  }, [selectedMonth, isLoaded, fetchMonthlyData]);
 
   const handleLogout = () => {
     logout();
@@ -68,7 +78,7 @@ const Index = () => {
     );
   }
 
-  const currentMonth = format(new Date(), 'yyyy-MM');
+  const currentMonth = format(selectedMonth, 'yyyy-MM');
   const totalExpenses = getTotalExpensesForMonth(currentMonth);
   const totalIncome = income.salary + income.otherIncome;
   const totalSavings = savingsGoals.reduce((sum, g) => sum + g.currentAmount, 0);
@@ -132,6 +142,9 @@ const Index = () => {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-6"
             >
+              {/* Month Selector */}
+              <MonthSelector selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />
+
               {/* Stats Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard title="Total Income" value={totalIncome} icon={Wallet} variant="income" delay={0} />

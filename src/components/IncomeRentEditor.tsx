@@ -131,7 +131,10 @@ export function IncomeRentEditor({
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
-      <h3 className="text-lg font-bold text-foreground mb-4">Monthly Overview</h3>
+      <div>
+        <h3 className="text-lg font-bold text-foreground">Monthly Overview</h3>
+        <p className="text-sm text-muted-foreground">Edit income and rent for the selected month</p>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <EditableField

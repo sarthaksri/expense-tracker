@@ -243,6 +243,32 @@ export function useExpenseStore() {
     return getExpensesForMonth(month).reduce((sum, e) => sum + e.amount, 0);
   }, [getExpensesForMonth]);
 
+  const fetchMonthlyData = useCallback(async (month: string) => {
+    try {
+      // Fetch monthly income
+      const incomeResponse = await monthlyDataAPI.getIncome(month);
+      if (incomeResponse.data.success) {
+        const incomeData = incomeResponse.data.data;
+        setIncome({
+          salary: Number(incomeData.salary),
+          otherIncome: Number(incomeData.otherIncome),
+        });
+      }
+
+      // Fetch monthly rent
+      const rentResponse = await monthlyDataAPI.getRent(month);
+      if (rentResponse.data.success) {
+        const rentData = rentResponse.data.data;
+        setRent({
+          amount: Number(rentData.amount),
+          isPaid: rentData.isPaid,
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching monthly data:', error);
+    }
+  }, []);
+
   return {
     expenses,
     savingsGoals,
@@ -262,5 +288,6 @@ export function useExpenseStore() {
     getExpensesForDate,
     getExpensesForMonth,
     getTotalExpensesForMonth,
+    fetchMonthlyData,
   };
 }
