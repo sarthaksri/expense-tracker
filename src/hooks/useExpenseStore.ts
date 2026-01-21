@@ -4,9 +4,9 @@ import { Expense, SavingsGoal, MonthlyIncome, MonthlyRent, ExpenseCategory } fro
 import { format, parseISO, isWithinInterval, startOfMonth, endOfMonth } from 'date-fns';
 
 const DEFAULT_SAVINGS_GOALS: Omit<SavingsGoal, 'id'>[] = [
-  { name: 'Tour Fund', targetAmount: 50000, currentAmount: 0, color: '#0ea5e9', icon: 'plane' },
-  { name: 'Gadget Fund', targetAmount: 30000, currentAmount: 0, color: '#a855f7', icon: 'smartphone' },
-  { name: 'Investment', targetAmount: 100000, currentAmount: 0, color: '#10b981', icon: 'trending-up' },
+  { name: 'Tour Fund', targetAmount: 50000, currentAmount: 0, color: '#0ea5e9', icon: 'plane', goalType: 'overall' },
+  { name: 'Gadget Fund', targetAmount: 30000, currentAmount: 0, color: '#a855f7', icon: 'smartphone', goalType: 'overall' },
+  { name: 'Investment', targetAmount: 100000, currentAmount: 0, color: '#10b981', icon: 'trending-up', goalType: 'overall' },
 ];
 
 const currentMonth = format(new Date(), 'yyyy-MM');
@@ -49,6 +49,8 @@ export function useExpenseStore() {
               currentAmount: Number(g.currentAmount),
               color: g.color,
               icon: g.icon,
+              goalType: g.goalType || 'overall',
+              period: g.period,
             })));
           } else {
             // Create default savings goals
@@ -64,6 +66,8 @@ export function useExpenseStore() {
                   currentAmount: Number(data.currentAmount),
                   color: data.color,
                   icon: data.icon,
+                  goalType: data.goalType || 'overall',
+                  period: data.period,
                 });
               }
             }
@@ -161,6 +165,8 @@ export function useExpenseStore() {
           currentAmount: Number(data.currentAmount),
           color: data.color,
           icon: data.icon,
+          goalType: data.goalType || 'overall',
+          period: data.period,
         };
         setSavingsGoals(prev => [...prev, newGoal]);
       }
