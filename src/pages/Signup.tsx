@@ -64,9 +64,14 @@ const Signup = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative"
       >
-        <div className="bg-card border border-border rounded-2xl shadow-2xl p-8">
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/30 to-accent/30 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+        <div className="relative bg-card/70 border border-border/50 backdrop-blur-xl rounded-2xl shadow-2xl p-8 overflow-hidden">
+          {/* Subtle background glow */}
+          <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-accent/10 rounded-full blur-3xl" />
+
           {/* Header */}
           <div className="text-center mb-8">
             <motion.div
@@ -77,8 +82,12 @@ const Signup = () => {
             >
               <IndianRupee className="w-10 h-10 text-primary" />
             </motion.div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Create Account</h1>
-            <p className="text-muted-foreground">Start tracking your expenses today</p>
+            <h1 className="text-3xl font-extrabold mb-2 tracking-tight">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-emerald-400 to-accent animate-gradient-x">
+                Create Account
+              </span>
+            </h1>
+            <p className="text-muted-foreground/80 font-medium">Start tracking your expenses today</p>
           </div>
 
           {/* Form */}
@@ -93,7 +102,7 @@ const Signup = () => {
                   placeholder="John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="pl-10 bg-background border-border"
+                  className="pl-10 bg-background border-border text-foreground ring-offset-background placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -109,7 +118,7 @@ const Signup = () => {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 bg-background border-border"
+                  className="pl-10 bg-background border-border text-foreground ring-offset-background placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -125,7 +134,7 @@ const Signup = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-background border-border"
+                  className="pl-10 bg-background border-border text-foreground ring-offset-background placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -141,7 +150,7 @@ const Signup = () => {
                   placeholder="••••••••"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-10 bg-background border-border"
+                  className="pl-10 bg-background border-border text-foreground ring-offset-background placeholder:text-muted-foreground/50"
                   required
                 />
               </div>
@@ -168,9 +177,9 @@ const Signup = () => {
 
           {/* Footer */}
           <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground/80">
               Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline font-medium">
+              <Link to="/login" className="text-primary hover:text-primary/80 hover:underline font-semibold transition-colors">
                 Sign in
               </Link>
             </p>
