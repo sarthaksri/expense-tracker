@@ -77,7 +77,7 @@ export function CategoryBreakdownChart({ expenses }: CategoryBreakdownChartProps
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="h-80"
+      className="h-64 sm:h-80"
     >
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
@@ -85,8 +85,8 @@ export function CategoryBreakdownChart({ expenses }: CategoryBreakdownChartProps
             data={dataWithPercentage}
             cx="50%"
             cy="50%"
-            innerRadius={60}
-            outerRadius={100}
+            innerRadius={window.innerWidth < 640 ? 40 : 60}
+            outerRadius={window.innerWidth < 640 ? 70 : 100}
             paddingAngle={4}
             dataKey="amount"
             animationBegin={0}

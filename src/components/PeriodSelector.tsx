@@ -30,15 +30,16 @@ export function PeriodSelector({ selectedPeriod, onPeriodChange }: PeriodSelecto
             whileTap={{ scale: 0.98 }}
             onClick={() => onPeriodChange(period.id)}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all',
-              'border-2',
+              'flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition-all',
+              'border-2 text-xs sm:text-sm',
               isActive
                 ? 'bg-primary text-primary-foreground border-primary shadow-lg shadow-primary/20'
                 : 'bg-card text-muted-foreground border-border hover:border-primary/50 hover:text-foreground'
             )}
           >
-            <Icon className="w-4 h-4" />
-            <span className="text-sm">{period.label}</span>
+            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <span className="hidden sm:inline">{period.label}</span>
+            <span className="sm:hidden">{period.months}M</span>
           </motion.button>
         );
       })}

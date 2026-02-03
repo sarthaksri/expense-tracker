@@ -89,7 +89,7 @@ export function ExpenseCalendar({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-xl bg-card border border-border"
+      className="p-4 sm:p-6 rounded-xl bg-card border border-border"
     >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -269,11 +269,12 @@ export function ExpenseCalendar({
       >
         <Button 
           variant="outline" 
-          className="w-full gap-2"
+          className="w-full gap-2 text-sm sm:text-base"
           onClick={() => onAddExpense(format(selectedDate, 'yyyy-MM-dd'))}
         >
           <Plus className="w-4 h-4" />
-          Add expense for {format(selectedDate, 'MMM d')}
+          <span className="hidden sm:inline">Add expense for {format(selectedDate, 'MMM d')}</span>
+          <span className="sm:hidden">Add expense</span>
         </Button>
       </motion.div>
     </motion.div>

@@ -42,7 +42,7 @@ export function StatCard({
       transition={{ duration: 0.5, delay }}
       whileHover={{ scale: 1.02, y: -2 }}
       className={cn(
-        'relative p-6 rounded-xl border bg-gradient-to-br overflow-hidden',
+        'relative p-4 sm:p-6 rounded-xl border bg-gradient-to-br overflow-hidden',
         'backdrop-blur-xl shadow-lg',
         variantStyles[variant]
       )}
@@ -58,15 +58,15 @@ export function StatCard({
       </div>
 
       <div className="relative z-10">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-semibold text-foreground/80">{title}</span>
-          <div className={cn('p-2.5 rounded-lg', iconStyles[variant])}>
-            <Icon className="w-5 h-5" />
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
+          <span className="text-xs sm:text-sm font-semibold text-foreground/80">{title}</span>
+          <div className={cn('p-2 sm:p-2.5 rounded-lg', iconStyles[variant])}>
+            <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
         </div>
 
         <div className="space-y-1">
-          <h3 className="text-2xl font-bold font-mono text-foreground">
+          <h3 className="text-xl sm:text-2xl font-bold font-mono text-foreground">
             <AnimatedNumber 
               value={value} 
               formatFn={formatCurrency}

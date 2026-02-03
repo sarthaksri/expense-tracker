@@ -98,22 +98,22 @@ const Index = () => {
     <div className="dark min-h-screen bg-background text-foreground pb-20 md:pb-0">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between"
+            className="flex items-center justify-between gap-2"
           >
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-primary/20 border border-primary/30">
-                <IndianRupee className="w-6 h-6 text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-primary/20 border border-primary/30 flex-shrink-0">
+                <IndianRupee className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Expense Tracker</h1>
-                <p className="text-sm text-muted-foreground font-medium">{format(new Date(), 'MMMM yyyy')}</p>
+              <div className="min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold text-foreground truncate">Expense Tracker</h1>
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium">{format(new Date(), 'MMMM yyyy')}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <div className="text-right hidden sm:block">
                 <p className="text-sm font-medium text-foreground">Welcome, {user?.name}</p>
                 <p className="text-xs text-muted-foreground">{user?.email}</p>
@@ -122,7 +122,7 @@ const Index = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleLogout}
-                className="gap-2"
+                className="gap-2 h-9 sm:h-10"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline">Logout</span>
@@ -134,7 +134,7 @@ const Index = () => {
 
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
         <AnimatePresence mode="wait">
           {activeTab === 'dashboard' && (
             <motion.div
@@ -142,7 +142,7 @@ const Index = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
-              className="space-y-6"
+              className="space-y-4 sm:space-y-6"
             >
               {/* Month Selector */}
               <MonthSelector selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />
@@ -164,13 +164,13 @@ const Index = () => {
               />
 
               {/* Quick Charts */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-lg font-semibold mb-4">Spending by Category</h3>
+              <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Spending by Category</h3>
                   <CategoryBreakdownChart expenses={monthExpenses} />
                 </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-lg font-semibold mb-4">Monthly Trend</h3>
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Trend</h3>
                   <MonthlyTrendChart expenses={expenses} period="6-month" />
                 </motion.div>
               </div>
@@ -185,11 +185,13 @@ const Index = () => {
           )}
 
           {activeTab === 'savings' && (
-            <motion.div key="savings" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">Savings Goals</h2>
-                <Button onClick={() => setAddGoalOpen(true)} className="gap-2">
-                  <Plus className="w-4 h-4" /> Add Goal
+            <motion.div key="savings" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-4 sm:space-y-6">
+              <div className="flex items-center justify-between gap-2">
+                <h2 className="text-xl sm:text-2xl font-bold">Savings Goals</h2>
+                <Button onClick={() => setAddGoalOpen(true)} className="gap-2 text-sm sm:text-base h-9 sm:h-10">
+                  <Plus className="w-4 h-4" />
+                  <span className="hidden sm:inline">Add Goal</span>
+                  <span className="sm:hidden">Add</span>
                 </Button>
               </div>
               
@@ -235,19 +237,19 @@ const Index = () => {
           )}
 
           {activeTab === 'analytics' && (
-            <motion.div key="analytics" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-6">
+            <motion.div key="analytics" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-4 sm:space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold">Analytics</h2>
+                <h2 className="text-xl sm:text-2xl font-bold">Analytics</h2>
                 <PeriodSelector selectedPeriod={analyticsPeriod} onPeriodChange={setAnalyticsPeriod} />
               </div>
               
-              <div className="grid lg:grid-cols-2 gap-6">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-lg font-semibold mb-4">Category Breakdown</h3>
+              <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">Category Breakdown</h3>
                   <CategoryBreakdownChart expenses={expenses} />
                 </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-lg font-semibold mb-4">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">
                     {analyticsPeriod === 'monthly' && 'Last 30 Days'}
                     {analyticsPeriod === 'quarterly' && 'Quarterly (3 Months)'}
                     {analyticsPeriod === '6-month' && '6-Month Trend'}

@@ -91,13 +91,13 @@ export function DailyExpenseList({ date, expenses, onDeleteExpense }: DailyExpen
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-semibold">
+                    <span className="font-mono font-semibold text-sm sm:text-base">
                       {formatCurrency(expense.amount)}
                     </span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                      className="h-8 w-8 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
                       onClick={() => onDeleteExpense(expense.id)}
                     >
                       <Trash2 className="w-4 h-4" />
