@@ -111,5 +111,3 @@ export function CategoryBreakdownChart({ expenses }: CategoryBreakdownChartProps
     </motion.div>
   );
 }
-
-export default CategoryBreakdownChart;

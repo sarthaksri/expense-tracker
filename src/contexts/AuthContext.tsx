@@ -9,9 +9,10 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  token: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: () => void;
   isLoading: boolean;
 }
 
@@ -19,28 +20,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check for existing session on mount via /auth/me (cookie-based)
+  // Check for existing token on mount
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await authAPI.getMe();
-        if (response.data.success) {
-          const { id, name, email } = response.data.data;
-          setUser({ id, name, email });
-          localStorage.setItem('user', JSON.stringify({ id, name, email }));
-        }
-      } catch (error) {
-        // Not authenticated or token invalid
-        localStorage.removeItem('user');
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const storedToken = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
 
-    checkAuth();
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
+    }
+    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -48,12 +40,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authAPI.login({ email, password });
       const { data } = response.data;
 
+      setToken(data.token);
       setUser({
         id: data.id,
         name: data.name,
         email: data.email,
       });
 
+      localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({
         id: data.id,
         name: data.name,
@@ -69,12 +63,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authAPI.register({ name, email, password });
       const { data } = response.data;
 
+      setToken(data.token);
       setUser({
         id: data.id,
         name: data.name,
         email: data.email,
       });
 
+      localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({
         id: data.id,
         name: data.name,
@@ -85,18 +81,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = async () => {
-    try {
-      await authAPI.logout();
-    } catch (error) {
-      // Ignore errors, proceed with client-side logout
-    }
+  const logout = () => {
     setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -109,4 +102,3 @@ export const useAuth = () => {
   }
   return context;
 };
-

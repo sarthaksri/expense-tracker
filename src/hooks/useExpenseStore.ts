@@ -23,16 +23,8 @@ export function useExpenseStore() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Parallelize all API calls for faster loading
-        const [expensesResponse, goalsResponse, incomeResponse, rentResponse, categoriesResponse] = await Promise.all([
-          expensesAPI.getAll(),
-          savingsGoalsAPI.getAll(),
-          monthlyDataAPI.getIncome(currentMonth),
-          monthlyDataAPI.getRent(currentMonth),
-          categoriesAPI.getAll()
-        ]);
-
-        // Process expenses
+        // Fetch expenses
+        const expensesResponse = await expensesAPI.getAll();
         if (expensesResponse.data.success) {
           setExpenses(expensesResponse.data.data.map((e: any) => ({
             id: e._id,
@@ -44,7 +36,8 @@ export function useExpenseStore() {
           })));
         }
 
-        // Process savings goals
+        // Fetch savings goals
+        const goalsResponse = await savingsGoalsAPI.getAll();
         if (goalsResponse.data.success) {
           const goalsData = goalsResponse.data.data;
 
@@ -82,7 +75,8 @@ export function useExpenseStore() {
           }
         }
 
-        // Process income
+        // Fetch monthly income
+        const incomeResponse = await monthlyDataAPI.getIncome(currentMonth);
         if (incomeResponse.data.success) {
           const incomeData = incomeResponse.data.data;
           setIncome({
@@ -91,7 +85,8 @@ export function useExpenseStore() {
           });
         }
 
-        // Process rent
+        // Fetch monthly rent
+        const rentResponse = await monthlyDataAPI.getRent(currentMonth);
         if (rentResponse.data.success) {
           const rentData = rentResponse.data.data;
           setRent({
@@ -100,7 +95,8 @@ export function useExpenseStore() {
           });
         }
 
-        // Process custom categories
+        // Fetch custom categories
+        const categoriesResponse = await categoriesAPI.getAll();
         if (categoriesResponse.data.success) {
           setCustomCategories(categoriesResponse.data.data.map((c: any) => c.name));
         }

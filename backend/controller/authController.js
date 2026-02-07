@@ -42,20 +42,13 @@ const register = async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    // Set httpOnly cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-
     res.status(201).json({
       success: true,
       data: {
         id: user._id,
         name: user.name,
         email: user.email,
+        token,
       },
     });
   } catch (error) {
@@ -103,20 +96,13 @@ const login = async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    // Set httpOnly cookie
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-
     res.status(200).json({
       success: true,
       data: {
         id: user._id,
         name: user.name,
         email: user.email,
+        token,
       },
     });
   } catch (error) {
@@ -152,23 +138,8 @@ const getMe = async (req, res) => {
   }
 };
 
-// @desc    Logout user
-// @route   POST /api/auth/logout
-// @access  Public
-const logout = (req, res) => {
-  res.cookie('token', '', {
-    httpOnly: true,
-    expires: new Date(0)
-  });
-  res.status(200).json({
-    success: true,
-    message: 'Logged out successfully'
-  });
-};
-
 module.exports = {
   register,
   login,
   getMe,
-  logout,
 };
