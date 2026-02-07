@@ -18,8 +18,19 @@ const app = express();
 connectDB();
 
 // Middleware
+const allowedOrigins = [
+  'https://expenses.sarthaksri.xyz',
+  'http://localhost:8080'
+];
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:8080',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(express.json());
