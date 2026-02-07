@@ -12,10 +12,38 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
-  plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
+  plugins: [react() /*, mode === "development" && componentTagger()*/].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+    },
+  },
+  // Optimize dependency pre-bundling for faster dev server startup
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      '@tanstack/react-query',
+      'framer-motion',
+      'date-fns',
+      'axios',
+      'lucide-react',
+    ],
+  },
+  build: {
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+    // Chunk splitting for better caching
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['framer-motion', '@radix-ui/react-dialog', '@radix-ui/react-select'],
+          'vendor-charts': ['recharts'],
+          'vendor-date': ['date-fns'],
+        },
+      },
     },
   },
 }));

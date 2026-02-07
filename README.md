@@ -1,73 +1,150 @@
-# Welcome to your Lovable project
+# 💰 Expense Tracker
 
-## Project info
+A modern expense tracking application with a React frontend and Node.js backend.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+![Tech Stack](https://img.shields.io/badge/React-18-61DAFB?logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js)
+![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose-47A248?logo=mongodb)
 
-## How can I edit this code?
+## ✨ Features
 
-There are several ways of editing your application.
+- 📊 **Dashboard** - Real-time expense overview with charts
+- 📅 **Calendar View** - Track daily expenses visually
+- 🎯 **Savings Goals** - Set and monitor monthly/overall goals
+- 📈 **Analytics** - Category breakdown and trend charts
+- 🔐 **Authentication** - JWT-based secure login/signup
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 🚀 Quick Start
 
-Changes made via Lovable will be committed automatically to this repo.
+### Prerequisites
 
-**Use your preferred IDE**
+- Node.js 18+
+- MongoDB (local or Atlas)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 1. Clone & Install
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+git clone <your-repo-url>
+cd expense-tracker
 
-Follow these steps:
+# Install frontend dependencies
+npm install
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install backend dependencies
+cd backend && npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 2. Environment Setup Example
 
-# Step 3: Install the necessary dependencies.
-npm i
+**Frontend** (`.env`):
+```env
+VITE_API_URL=http://localhost:5000
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+**Backend** (`backend/.env`):
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/expense-tracker
+JWT_SECRET=your-secret-key
+```
+
+### 3. Run Development Servers
+
+```bash
+# Terminal 1 - Backend
+cd backend && node server.js
+
+# Terminal 2 - Frontend
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+- Frontend: http://localhost:8080
+- Backend: http://localhost:5000
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 🏗️ Project Structure
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+expense-tracker/
+├── src/                    # Frontend (React + TypeScript)
+│   ├── components/         # UI components
+│   ├── contexts/           # Auth context
+│   ├── hooks/              # Custom hooks (useExpenseStore)
+│   ├── pages/              # Page components
+│   └── lib/                # API utilities
+│
+├── backend/                # Backend (Node.js + Express)
+│   ├── Schema/             # Mongoose models
+│   │   ├── User.js
+│   │   ├── Expense.js
+│   │   ├── SavingsGoal.js
+│   │   ├── MonthlyIncome.js
+│   │   ├── MonthlyRent.js
+│   │   └── CustomCategory.js
+│   ├── controller/         # Route controllers
+│   ├── routes/             # API routes
+│   ├── middleware/         # Auth middleware
+│   └── server.js           # Express app entry
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🔌 API Endpoints
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create account |
+| POST | `/api/auth/login` | Login |
+| GET | `/api/expenses` | Get all expenses |
+| POST | `/api/expenses` | Add expense |
+| DELETE | `/api/expenses/:id` | Delete expense |
+| GET | `/api/savings-goals` | Get savings goals |
+| POST | `/api/savings-goals` | Create goal |
+| PUT | `/api/savings-goals/:id` | Update goal |
+| GET | `/api/monthly-data/income/:month` | Get monthly income |
+| PUT | `/api/monthly-data/income/:month` | Update income |
+| GET | `/api/custom-categories` | Get custom categories |
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+## 🛠️ Tech Stack
 
-## Can I connect a custom domain to my Lovable project?
+### Frontend
+- **React 18** + TypeScript
+- **Vite** - Fast dev server & build
+- **TailwindCSS** + shadcn/ui
+- **Recharts** - Data visualization
+- **Framer Motion** - Animations
+- **React Query** - Data fetching
 
-Yes, you can!
+### Backend
+- **Express 5** - Web framework
+- **Mongoose** - MongoDB ODM
+- **JWT** - Authentication
+- **bcryptjs** - Password hashing
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+---
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 📦 Scripts
+
+### Frontend
+```bash
+npm run dev      # Start dev server
+npm run build    # Production build
+npm run preview  # Preview production build
+```
+
+### Backend
+```bash
+npm start        # Start server
+npm run dev      # Start with nodemon (hot reload)
+```
+
+---
+
+## 📄 License
+
+ISC © Sarthak

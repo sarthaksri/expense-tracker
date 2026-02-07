@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, startOfMonth } from 'date-fns';
 import { Wallet, TrendingDown, PiggyBank, IndianRupee, Plus, LogOut } from 'lucide-react';
@@ -11,13 +11,16 @@ import { StatCard } from '@/components/StatCard';
 import { ExpenseCalendar } from '@/components/ExpenseCalendar';
 import { DailyExpenseList } from '@/components/DailyExpenseList';
 import { SavingsGoalCard } from '@/components/SavingsGoalCard';
-import { CategoryBreakdownChart } from '@/components/CategoryBreakdownChart';
-import { MonthlyTrendChart, AnalyticsPeriod } from '@/components/MonthlyTrendChart';
 import { PeriodSelector } from '@/components/PeriodSelector';
 import { IncomeRentEditor } from '@/components/IncomeRentEditor';
 import { AddExpenseDialog } from '@/components/AddExpenseDialog';
 import { AddSavingsGoalDialog } from '@/components/AddSavingsGoalDialog';
 import { Button } from '@/components/ui/button';
+import type { AnalyticsPeriod } from '@/components/MonthlyTrendChart';
+
+// Lazy load heavy chart components
+const CategoryBreakdownChart = lazy(() => import('@/components/CategoryBreakdownChart'));
+const MonthlyTrendChart = lazy(() => import('@/components/MonthlyTrendChart'));
 
 type Tab = 'dashboard' | 'calendar' | 'savings' | 'analytics';
 
@@ -60,8 +63,8 @@ const Index = () => {
     }
   }, [selectedMonth, isLoaded, fetchMonthlyData]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
@@ -167,11 +170,15 @@ const Index = () => {
               <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
                   <h3 className="text-base sm:text-lg font-semibold mb-4">Spending by Category</h3>
-                  <CategoryBreakdownChart expenses={monthExpenses} />
+                  <Suspense fallback={<div className="h-64 sm:h-80 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                    <CategoryBreakdownChart expenses={monthExpenses} />
+                  </Suspense>
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
                   <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Trend</h3>
-                  <MonthlyTrendChart expenses={expenses} period="6-month" />
+                  <Suspense fallback={<div className="h-56 sm:h-64 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                    <MonthlyTrendChart expenses={expenses} period="6-month" />
+                  </Suspense>
                 </motion.div>
               </div>
             </motion.div>
@@ -246,7 +253,9 @@ const Index = () => {
               <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
                   <h3 className="text-base sm:text-lg font-semibold mb-4">Category Breakdown</h3>
-                  <CategoryBreakdownChart expenses={expenses} />
+                  <Suspense fallback={<div className="h-64 sm:h-80 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                    <CategoryBreakdownChart expenses={expenses} />
+                  </Suspense>
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
                   <h3 className="text-base sm:text-lg font-semibold mb-4">
@@ -255,7 +264,9 @@ const Index = () => {
                     {analyticsPeriod === '6-month' && '6-Month Trend'}
                     {analyticsPeriod === 'annual' && 'Annual (12 Months)'}
                   </h3>
-                  <MonthlyTrendChart expenses={expenses} period={analyticsPeriod} />
+                  <Suspense fallback={<div className="h-56 sm:h-64 flex items-center justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                    <MonthlyTrendChart expenses={expenses} period={analyticsPeriod} />
+                  </Suspense>
                 </motion.div>
               </div>
             </motion.div>

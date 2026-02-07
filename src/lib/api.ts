@@ -2,35 +2,23 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-// Create axios instance
+// Create axios instance with credentials for cookie-based auth
 const api = axios.create({
     baseURL: `${API_URL}/api`,
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true, // Send cookies with requests
 });
-
-// Request interceptor to add token
-api.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
 
 // Response interceptor for error handling
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
-            // Token expired or invalid
-            localStorage.removeItem('token');
+        // Don't redirect on 401 for /auth/me (session check)
+        const isAuthMeRequest = error.config?.url === '/auth/me';
+        if (error.response?.status === 401 && !isAuthMeRequest) {
+            // Token expired or invalid - redirect to login
             localStorage.removeItem('user');
             window.location.href = '/login';
         }
@@ -45,6 +33,9 @@ export const authAPI = {
 
     login: (data: { email: string; password: string }) =>
         api.post('/auth/login', data),
+
+    logout: () =>
+        api.post('/auth/logout'),
 
     getMe: () =>
         api.get('/auth/me'),

@@ -173,3 +173,5 @@ export function MonthlyTrendChart({ expenses, period = '6-month' }: MonthlyTrend
     </motion.div>
   );
 }
+
+export default MonthlyTrendChart;
