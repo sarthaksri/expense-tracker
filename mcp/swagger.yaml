@@ -1,0 +1,54 @@
+openapi: 3.1.0
+info:
+  title: Expense Tracker API
+  version: 1.0.0
+servers:
+  - url: https://expensesbackend.sarthaksri.xyz/api
+paths:
+  /expenses:
+    get:
+      summary: Get all expenses
+      operationId: getExpenses
+      responses:
+        '200':
+          description: A list of expenses
+    post:
+      summary: Add a new expense
+      operationId: createExpense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                category:
+                  type: string
+                description:
+                  type: string
+                date:
+                  type: string
+                  format: date
+              required:
+                - amount
+                - category
+                - date
+      responses:
+        '201':
+          description: Expense created
+  /savings-goals:
+    get:
+      summary: Get active savings goals
+      operationId: getSavingsGoals
+      responses:
+        '200':
+          description: A list of savings goals
+  /monthly-data:
+    get:
+      summary: Get monthly aggregated data
+      operationId: getMonthlyData
+      responses:
+        '200':
+          description: Monthly expense data by category

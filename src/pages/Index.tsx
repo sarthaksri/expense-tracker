@@ -18,6 +18,13 @@ import { IncomeRentEditor } from '@/components/IncomeRentEditor';
 import { AddExpenseDialog } from '@/components/AddExpenseDialog';
 import { AddSavingsGoalDialog } from '@/components/AddSavingsGoalDialog';
 import { Button } from '@/components/ui/button';
+import {
+  PageSkeleton,
+  DashboardSkeleton,
+  CalendarSkeleton,
+  SavingsSkeleton,
+  AnalyticsSkeleton,
+} from '@/components/SkeletonLoader';
 
 type Tab = 'dashboard' | 'calendar' | 'savings' | 'analytics';
 
@@ -29,6 +36,7 @@ const Index = () => {
   const [addExpenseDate, setAddExpenseDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [addGoalOpen, setAddGoalOpen] = useState(false);
   const [analyticsPeriod, setAnalyticsPeriod] = useState<AnalyticsPeriod>('6-month');
+  const [isFetching, setIsFetching] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -56,7 +64,10 @@ const Index = () => {
   // Fetch monthly data when selected month changes
   useEffect(() => {
     if (isLoaded) {
-      fetchMonthlyData(format(selectedMonth, 'yyyy-MM'));
+      setIsFetching(true);
+      fetchMonthlyData(format(selectedMonth, 'yyyy-MM')).finally(() => {
+        setIsFetching(false);
+      });
     }
   }, [selectedMonth, isLoaded, fetchMonthlyData]);
 
@@ -66,18 +77,7 @@ const Index = () => {
   };
 
   if (!isLoaded) {
-    return (
-      <div className="dark min-h-screen bg-background flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading your expenses...</p>
-        </motion.div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   const currentMonth = format(selectedMonth, 'yyyy-MM');
@@ -144,120 +144,144 @@ const Index = () => {
               exit={{ opacity: 0, x: 20 }}
               className="space-y-4 sm:space-y-6"
             >
-              {/* Month Selector */}
-              <MonthSelector selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />
+              {isFetching ? (
+                <DashboardSkeleton />
+              ) : (
+                <>
+                  {/* Month Selector */}
+                  <MonthSelector selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Total Income" value={totalIncome} icon={Wallet} variant="income" delay={0} />
-                <StatCard title="Expenses" value={totalExpenses} icon={TrendingDown} variant="expense" delay={0.1} />
-                <StatCard title="Savings" value={totalSavings} icon={PiggyBank} variant="savings" delay={0.2} />
-                <StatCard title="Balance" value={balance} icon={IndianRupee} variant={balance >= 0 ? 'income' : 'expense'} delay={0.3} />
-              </div>
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard title="Total Income" value={totalIncome} icon={Wallet} variant="income" delay={0} />
+                    <StatCard title="Expenses" value={totalExpenses} icon={TrendingDown} variant="expense" delay={0.1} />
+                    <StatCard title="Savings" value={totalSavings} icon={PiggyBank} variant="savings" delay={0.2} />
+                    <StatCard title="Balance" value={balance} icon={IndianRupee} variant={balance >= 0 ? 'income' : 'expense'} delay={0.3} />
+                  </div>
 
-              {/* Income & Rent Editor */}
-              <IncomeRentEditor
-                income={income}
-                rent={rent}
-                onUpdateIncome={updateIncome}
-                onUpdateRent={updateRent}
-              />
+                  {/* Income & Rent Editor */}
+                  <IncomeRentEditor
+                    income={income}
+                    rent={rent}
+                    onUpdateIncome={updateIncome}
+                    onUpdateRent={updateRent}
+                  />
 
-              {/* Quick Charts */}
-              <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-base sm:text-lg font-semibold mb-4">Spending by Category</h3>
-                  <CategoryBreakdownChart expenses={monthExpenses} />
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Trend</h3>
-                  <MonthlyTrendChart expenses={expenses} period="6-month" />
-                </motion.div>
-              </div>
+                  {/* Quick Charts */}
+                  <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
+                      <h3 className="text-base sm:text-lg font-semibold mb-4">Spending by Category</h3>
+                      <CategoryBreakdownChart expenses={monthExpenses} />
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
+                      <h3 className="text-base sm:text-lg font-semibold mb-4">Monthly Trend</h3>
+                      <MonthlyTrendChart expenses={expenses} period="6-month" />
+                    </motion.div>
+                  </div>
+                </>
+              )}
             </motion.div>
           )}
 
           {activeTab === 'calendar' && (
             <motion.div key="calendar" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="grid lg:grid-cols-2 gap-6">
-              <ExpenseCalendar expenses={expenses} selectedDate={selectedDate} onDateChange={setSelectedDate} onAddExpense={handleAddExpense} />
-              <DailyExpenseList date={selectedDate} expenses={dailyExpenses} onDeleteExpense={deleteExpense} />
+              {isFetching ? (
+                <CalendarSkeleton />
+              ) : (
+                <>
+                  <ExpenseCalendar expenses={expenses} selectedDate={selectedDate} onDateChange={setSelectedDate} onAddExpense={handleAddExpense} />
+                  <DailyExpenseList date={selectedDate} expenses={dailyExpenses} onDeleteExpense={deleteExpense} />
+                </>
+              )}
             </motion.div>
           )}
 
           {activeTab === 'savings' && (
             <motion.div key="savings" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-4 sm:space-y-6">
-              <div className="flex items-center justify-between gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold">Savings Goals</h2>
-                <Button onClick={() => setAddGoalOpen(true)} className="gap-2 text-sm sm:text-base h-9 sm:h-10">
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">Add Goal</span>
-                  <span className="sm:hidden">Add</span>
-                </Button>
-              </div>
-              
-              {/* Monthly Savings Goals */}
-              {savingsGoals.some(g => g.goalType === 'monthly') && (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    📅 Monthly Savings
-                  </h3>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {savingsGoals
-                      .filter(g => g.goalType === 'monthly')
-                      .map((goal, i) => (
-                        <SavingsGoalCard key={goal.id} goal={goal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} delay={i * 0.1} />
-                      ))}
+              {isFetching ? (
+                <SavingsSkeleton />
+              ) : (
+                <>
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className="text-xl sm:text-2xl font-bold">Savings Goals</h2>
+                    <Button onClick={() => setAddGoalOpen(true)} className="gap-2 text-sm sm:text-base h-9 sm:h-10">
+                      <Plus className="w-4 h-4" />
+                      <span className="hidden sm:inline">Add Goal</span>
+                      <span className="sm:hidden">Add</span>
+                    </Button>
                   </div>
-                </div>
-              )}
 
-              {/* Overall Goals */}
-              {savingsGoals.some(g => g.goalType === 'overall') && (
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    🎯 Overall Goals
-                  </h3>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {savingsGoals
-                      .filter(g => g.goalType === 'overall')
-                      .map((goal, i) => (
-                        <SavingsGoalCard key={goal.id} goal={goal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} delay={i * 0.1} />
-                      ))}
-                  </div>
-                </div>
-              )}
+                  {/* Monthly Savings Goals */}
+                  {savingsGoals.some(g => g.goalType === 'monthly') && (
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-semibold flex items-center gap-2">
+                        📅 Monthly Savings
+                      </h3>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {savingsGoals
+                          .filter(g => g.goalType === 'monthly')
+                          .map((goal, i) => (
+                            <SavingsGoalCard key={goal.id} goal={goal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} delay={i * 0.1} />
+                          ))}
+                      </div>
+                    </div>
+                  )}
 
-              {/* Empty state */}
-              {savingsGoals.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <p>No savings goals yet. Create one to get started!</p>
-                </div>
+                  {/* Overall Goals */}
+                  {savingsGoals.some(g => g.goalType === 'overall') && (
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-semibold flex items-center gap-2">
+                        🎯 Overall Goals
+                      </h3>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {savingsGoals
+                          .filter(g => g.goalType === 'overall')
+                          .map((goal, i) => (
+                            <SavingsGoalCard key={goal.id} goal={goal} onUpdate={updateSavingsGoal} onDelete={deleteSavingsGoal} delay={i * 0.1} />
+                          ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Empty state */}
+                  {savingsGoals.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <p>No savings goals yet. Create one to get started!</p>
+                    </div>
+                  )}
+                </>
               )}
             </motion.div>
           )}
 
           {activeTab === 'analytics' && (
             <motion.div key="analytics" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="space-y-4 sm:space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <h2 className="text-xl sm:text-2xl font-bold">Analytics</h2>
-                <PeriodSelector selectedPeriod={analyticsPeriod} onPeriodChange={setAnalyticsPeriod} />
-              </div>
-              
-              <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-base sm:text-lg font-semibold mb-4">Category Breakdown</h3>
-                  <CategoryBreakdownChart expenses={expenses} />
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
-                  <h3 className="text-base sm:text-lg font-semibold mb-4">
-                    {analyticsPeriod === 'monthly' && 'Last 30 Days'}
-                    {analyticsPeriod === 'quarterly' && 'Quarterly (3 Months)'}
-                    {analyticsPeriod === '6-month' && '6-Month Trend'}
-                    {analyticsPeriod === 'annual' && 'Annual (12 Months)'}
-                  </h3>
-                  <MonthlyTrendChart expenses={expenses} period={analyticsPeriod} />
-                </motion.div>
-              </div>
+              {isFetching ? (
+                <AnalyticsSkeleton />
+              ) : (
+                <>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <h2 className="text-xl sm:text-2xl font-bold">Analytics</h2>
+                    <PeriodSelector selectedPeriod={analyticsPeriod} onPeriodChange={setAnalyticsPeriod} />
+                  </div>
+
+                  <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
+                      <h3 className="text-base sm:text-lg font-semibold mb-4">Category Breakdown</h3>
+                      <CategoryBreakdownChart expenses={expenses} />
+                    </motion.div>
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="p-4 sm:p-6 rounded-xl bg-card border border-border">
+                      <h3 className="text-base sm:text-lg font-semibold mb-4">
+                        {analyticsPeriod === 'monthly' && 'Last 30 Days'}
+                        {analyticsPeriod === 'quarterly' && 'Quarterly (3 Months)'}
+                        {analyticsPeriod === '6-month' && '6-Month Trend'}
+                        {analyticsPeriod === 'annual' && 'Annual (12 Months)'}
+                      </h3>
+                      <MonthlyTrendChart expenses={expenses} period={analyticsPeriod} />
+                    </motion.div>
+                  </div>
+                </>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
