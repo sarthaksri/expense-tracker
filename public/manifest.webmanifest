@@ -1,0 +1,34 @@
+{
+  "name": "Expense Tracker",
+  "short_name": "Expenses",
+  "description": "Quick expense tracking after payments",
+  "start_url": "/quick-add",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Add Expense",
+      "short_name": "Quick Add",
+      "description": "Open the fast expense form",
+      "url": "/quick-add",
+      "icons": [
+        {
+          "src": "/pwa-icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

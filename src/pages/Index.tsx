@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, startOfMonth } from 'date-fns';
 import { Wallet, TrendingDown, PiggyBank, IndianRupee, Plus, LogOut } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useExpenseStore } from '@/hooks/useExpenseStore';
 import { Navigation } from '@/components/Navigation';
@@ -288,6 +288,16 @@ const Index = () => {
       </main>
 
       {/* Dialogs */}
+      <Button
+        asChild
+        className="fixed bottom-24 right-4 z-40 h-14 w-14 rounded-md shadow-lg md:bottom-6"
+        size="icon"
+        aria-label="Open quick add"
+      >
+        <Link to="/quick-add">
+          <Plus className="h-6 w-6" />
+        </Link>
+      </Button>
       <AddExpenseDialog open={addExpenseOpen} onOpenChange={setAddExpenseOpen} date={addExpenseDate} customCategories={customCategories} onAddExpense={addExpense} onAddCategory={addCustomCategory} />
       <AddSavingsGoalDialog open={addGoalOpen} onOpenChange={setAddGoalOpen} onAddGoal={addSavingsGoal} />
     </div>
